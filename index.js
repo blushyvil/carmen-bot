@@ -1,4 +1,4 @@
-require('dotenv').config()
+  require('dotenv').config()
 const express = require('express')
 const line = require('@line/bot-sdk')
 
@@ -17,6 +17,7 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 })
 
 async function handleEvent(event) {
+  console.log('User ID:', event.source.userId)
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
