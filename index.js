@@ -31,12 +31,12 @@ async function handleEvent(event) {
       const userId = member.userId
       await client.replyMessage(event.replyToken, {
         type: 'text',
-        text: `hi﹐ @mention welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you'll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`,
+        text: `hi, @x welcome to hibigou!`,
         mentions: {
           mentionees: [
             {
-              index: 4,
-              length: 8,
+              index: 3,
+              length: 2,
               userId: member.userId,
               type: 'user'
             }
