@@ -38,13 +38,13 @@ async function handleEvent(event) {
             mentionee: {
               type: 'user',
               userId: member.userId
-             }
-           }
-         }
-       })
-     }
-   }
+          }
+        }
+      }
+    })
   }
+}
+}
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
