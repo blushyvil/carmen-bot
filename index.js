@@ -83,6 +83,27 @@ async function handleEvent(event) {
     }
   }
 
+  if (text === '!listcom') {
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: '⤫ uh oh! only admin can use this ⤫'
+      })
+    }
+    const keys = Object.keys(responses)
+    if (keys.length === 0) {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: 'no commands saved yet :<'
+      })
+    }
+    const list = keys.map(k => `#${k}`).join('\n')
+    return client.replyMessage(event.replyToken, {
+      type: 'text',
+      text: `hibigou commands list!ᐟ\n\n${list}\n\n♡`
+    })
+  }
+
   if (text.startsWith('#')) {
     const command = text.slice(1)
     if (responses[command]) {
