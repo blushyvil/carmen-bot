@@ -36,8 +36,8 @@ async function handleEvent(event) {
           mentionees: [
             {
               index: 4,
-              length: umember.userId.length,
-              userId: umember.userId,
+              length: member.userId.length,
+              userId: member.userId,
               type: 'user'
             }
           ]
