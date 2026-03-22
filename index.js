@@ -24,7 +24,7 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 })
 
 async function handleEvent(event) {
-  if (event.type === 'memberJoined') {
+if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
       const profile = await client.getGroupMemberProfile(event.source.groupId, member.userId)
@@ -36,6 +36,7 @@ async function handleEvent(event) {
     }
     return
   }
+}
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
@@ -117,6 +118,6 @@ async function handleEvent(event) {
   }
 
   return null
-}
+
 
 app.listen(process.env.PORT || 3000, () => console.log('carmen-bot is running!'))
