@@ -30,7 +30,7 @@ async function handleEvent(event) {
     for (const member of members) {
       await client.replyMessage(event.replyToken, {
         type: 'text',
-        text: 'hii, welcome to carmen! selamat datang ya ♡'
+        text: 'hii, welcome to hibigou! make yourself at home yeah ♡'
       })
     }
   }
@@ -46,7 +46,7 @@ async function handleEvent(event) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: 'sorry, admin only! ♡'
+        text: '⤫ uh oh! only admin can use this ⤫'
       })
     }
     const parts = text.slice(5).split(' ')
@@ -56,7 +56,7 @@ async function handleEvent(event) {
     fs.writeFileSync('responses.json', JSON.stringify(responses))
     return client.replyMessage(event.replyToken, {
       type: 'text',
-      text: `done! command #${command} udah disimpan ♡`
+      text: `yipee! #${command} . updated ♡`
     })
   }
 
