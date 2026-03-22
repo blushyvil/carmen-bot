@@ -60,6 +60,29 @@ async function handleEvent(event) {
     })
   }
 
+  if (text.startsWith('!delete ')) {
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: '⤫ uh oh! only admin can use this ⤫'
+      })
+    }
+    const command = text.slice(8).trim()
+    if (responses[command]) {
+      delete responses[command]
+      fs.writeFileSync('responses.json', JSON.stringify(responses))
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: `bleep! . #${command} has been removed.`
+      })
+    } else {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: `hmm, #${command} not found! :<`
+      })
+    }
+  }
+
   if (text.startsWith('#')) {
     const command = text.slice(1)
     if (responses[command]) {
