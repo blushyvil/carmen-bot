@@ -29,27 +29,19 @@ const axios = require('axios')
 if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
-      await axios.post('https://api.line.me/v2/bot/message/reply', {
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'textV2',
-          text: 'hi﹐ {user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co',
-          substitution: {
-            user: {
-              type: 'mention',
-              mentionee: {
-                type: 'user',
-                userId: member.userId
-              }
-            }
-          }
-        }]
-      }, {
-        headers: {
-          'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      try {
+        const profile = await client.getGroupMemberProfile(event.source.groupId, member.userId)
+        await client.replyMessage(event.replyToken, {
+          type: 'text',
+          text: `test: ${profile.displayName}`
+        })
+      } catch (err) {
+        console.error('profile error:', err)
+        await client.replyMessage(event.replyToken, {
+          type: 'text',
+          text: 'gagal ambil nama'
+        })
+      }
     }
     return
   }
