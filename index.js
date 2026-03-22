@@ -113,8 +113,6 @@ async function handleEvent(event) {
       })
     }
   }
-
-  return null
-}
+  
 
 app.listen(process.env.PORT || 3000, () => console.log('carmen-bot is running!'))
