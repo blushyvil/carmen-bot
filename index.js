@@ -24,14 +24,12 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 })
 
 async function handleEvent(event) {
-  if (event.type === 'memberJoined') {
+if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
-      const profile = await client.getGroupMemberProfile(event.source.groupId, member.userId)
-      const name = profile.displayName
       await client.replyMessage(event.replyToken, {
         type: 'text',
-        text: `hi﹐ ${name}! welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`
+        text: 'hi﹐ welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co'
       })
     }
     return
