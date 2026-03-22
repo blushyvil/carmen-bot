@@ -25,27 +25,26 @@ if (fs.existsSync('responses.json')) {
 }
 
 async function handleEvent(event) {
+async function handleEvent(event) {
   if (event.type === 'memberJoined') {
-  const members = event.joined.members
-  for (const member of members) {
-    await client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{
+    const members = event.joined.members
+    for (const member of members) {
+      await client.replyMessage(event.replyToken, {
         type: 'textV2',
-        text: 'hi, {user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co',
+        text: 'hi﹐ {user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co',
         substitution: {
           user: {
             type: 'mention',
             mentionee: {
               type: 'user',
               userId: member.userId
-            }
-          }
-        }
-      }]
-    })
+             }
+           }
+         }
+       })
+     }
+   }
   }
-}
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
