@@ -1,6 +1,8 @@
-  require('dotenv').config()
+require('dotenv').config()
 const express = require('express')
 const line = require('@line/bot-sdk')
+const fs = require('fs')
+const { ADMIN_IDS } = require('./config')
 
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
@@ -10,21 +12,17 @@ const config = {
 const client = new line.Client(config)
 const app = express()
 
+let responses = {}
+if (fs.existsSync('responses.json')) {
+  responses = JSON.parse(fs.readFileSync('responses.json'))
+}
+
 app.post('/webhook', line.middleware(config), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
     .then(result => res.json(result))
     .catch(err => console.error(err))
 })
 
-const { ADMIN_IDS } = require('./config')
-const fs = require('fs')
-
-let responses = {}
-if (fs.existsSync('responses.json')) {
-  responses = JSON.parse(fs.readFileSync('responses.json'))
-}
-
-async function handleEvent(event) {
 async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
@@ -38,13 +36,13 @@ async function handleEvent(event) {
             mentionee: {
               type: 'user',
               userId: member.userId
+            }
           }
         }
-      }
-    })
+      })
+    }
+    return
   }
-}
-}
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
