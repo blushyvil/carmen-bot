@@ -16,17 +16,61 @@ app.post('/webhook', line.middleware(config), (req, res) => {
     .catch(err => console.error(err))
 })
 
+const { ADMIN_IDS } = require('./config')
+const fs = require('fs')
+
+let responses = {}
+if (fs.existsSync('responses.json')) {
+  responses = JSON.parse(fs.readFileSync('responses.json'))
+}
+
 async function handleEvent(event) {
-  console.log('User ID:', event.source.userId)
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
       await client.replyMessage(event.replyToken, {
         type: 'text',
-        text: 'hii, welcome to hibigou! selamat datang ya ♡'
+        text: 'hii, welcome to carmen! selamat datang ya ♡'
       })
     }
   }
+
+  if (event.type !== 'message' || event.message.type !== 'text') {
+    return null
+  }
+
+  const userId = event.source.userId
+  const text = event.message.text.trim()
+
+  if (text.startsWith('!set ')) {
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: 'sorry, admin only! ♡'
+      })
+    }
+    const parts = text.slice(5).split(' ')
+    const command = parts[0]
+    const response = parts.slice(1).join(' ')
+    responses[command] = response
+    fs.writeFileSync('responses.json', JSON.stringify(responses))
+    return client.replyMessage(event.replyToken, {
+      type: 'text',
+      text: `done! command #${command} udah disimpan ♡`
+    })
+  }
+
+  if (text.startsWith('#')) {
+    const command = text.slice(1)
+    if (responses[command]) {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: responses[command]
+      })
+    }
+  }
+
+  return null
 }
 
 app.listen(process.env.PORT || 3000, () => console.log('carmen-bot is running!'))
