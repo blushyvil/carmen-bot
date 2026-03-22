@@ -28,9 +28,20 @@ async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     for (const member of members) {
+      const userId = member.userId
       await client.replyMessage(event.replyToken, {
         type: 'text',
-        text: 'hii, welcome to hibigou! make yourself at home yeah ♡'
+        text: `hi﹐ @user! welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you'll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`,
+        mentions: {
+          mentionees: [
+            {
+              index: 4,
+              length: 5,
+              userId: userId,
+              type: 'user'
+            }
+          ]
+        }
       })
     }
   }
@@ -46,7 +57,7 @@ async function handleEvent(event) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: '⤫ uh oh! only admin can use this ⤫'
+        text: 'sorry! that one is a͟d͟m͟i͟n͟ only'
       })
     }
     const parts = text.slice(5).split(' ')
@@ -56,7 +67,7 @@ async function handleEvent(event) {
     fs.writeFileSync('responses.json', JSON.stringify(responses))
     return client.replyMessage(event.replyToken, {
       type: 'text',
-      text: `yipee! #${command} . updated ♡`
+      text: `got it! #${command} saved`
     })
   }
 
@@ -64,7 +75,7 @@ async function handleEvent(event) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: '⤫ uh oh! only admin can use this ⤫'
+        text: 'sorry! that one is a͟d͟m͟i͟n͟ only'
       })
     }
     const command = text.slice(8).trim()
@@ -73,7 +84,7 @@ async function handleEvent(event) {
       fs.writeFileSync('responses.json', JSON.stringify(responses))
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: `bleep! . #${command} has been removed.`
+        text: `poof... #${command} gone`
       })
     } else {
       return client.replyMessage(event.replyToken, {
@@ -83,24 +94,24 @@ async function handleEvent(event) {
     }
   }
 
-  if (text === '!listcom') {
+  if (text === '!comlist') {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: '⤫ uh oh! only admin can use this ⤫'
+        text: 'sorry! that one is a͟d͟m͟i͟n͟ only'
       })
     }
     const keys = Object.keys(responses)
     if (keys.length === 0) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: 'no commands saved yet :<'
+        text: 'hm, nothing is here yet... (๑•᎑•๑)'
       })
     }
     const list = keys.map(k => `#${k}`).join('\n')
     return client.replyMessage(event.replyToken, {
       type: 'text',
-      text: `hibigou commands list!ᐟ\n\n${list}\n\n♡`
+      text: `noted by carmen ۫ ׅ\n\n${list}\n\n𓏵`
     })
   }
 
