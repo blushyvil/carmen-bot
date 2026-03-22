@@ -28,12 +28,12 @@ async function handleEvent(event) {
     const members = event.joined.members
     for (const member of members) {
       await client.replyMessage(event.replyToken, {
-  type: 'text',
-  text: 'hi﹐ welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co'
+        type: 'text',
+        text: 'hi﹐ welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you\'ll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co'
       })
     }
+    return
   }
-}
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
@@ -113,6 +113,8 @@ async function handleEvent(event) {
       })
     }
   }
-  
+
+  return null
+}
 
 app.listen(process.env.PORT || 3000, () => console.log('carmen-bot is running!'))
