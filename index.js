@@ -18,6 +18,7 @@ let banned = []
 if (fs.existsSync('banned.json')) {
   banned = JSON.parse(fs.readFileSync('banned.json'))
 }
+
 function isBanned(userId) {
   return banned.some(b => b.userId === userId)
 }
@@ -41,15 +42,34 @@ async function handleEvent(event) {
         await client.kickGroupMember(event.source.groupId, member.userId)
         await client.replyMessage({
           replyToken: event.replyToken,
-          messages: [{ type: 'text', text: `someone tried to sneak in... and got removed.`}]
+          messages: [{ type: 'text', text: 'someone tried to sneak in... and got removed.' }]
         })
         return
+      }
+      if (event.source.type === 'group') {
+        const inviterId = event.joined.inviter?.userId
+        if (inviterId && !ADMIN_IDS.includes(inviterId)) {
+          try {
+            const profile = await client.getGroupMemberProfile(event.source.groupId, inviterId)
+            const no = banned.length + 1
+            banned.push({ no, name: profile.displayName, userId: inviterId })
+            fs.writeFileSync('banned.json', JSON.stringify(banned))
+            await client.kickGroupMember(event.source.groupId, inviterId)
+            await client.kickGroupMember(event.source.groupId, member.userId)
+            return client.replyMessage({
+              replyToken: event.replyToken,
+              messages: [{ type: 'text', text: 'uninvited guests detected... both removed. 𓏵' }]
+            })
+          } catch (err) {
+            console.error('anti-invite error:', err)
+          }
+        }
       }
       await client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
           type: 'textV2',
-          text: `hi﹐ {user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you'll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`,
+          text: `{user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you'll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`,
           substitution: {
             user: {
               type: 'mention',
@@ -66,9 +86,7 @@ async function handleEvent(event) {
   }
 
   if (event.type === 'memberLeft') {
-    const leftUserId = event.left.members[0].userId
     const sourceUserId = event.source.userId
-
     if (!ADMIN_IDS.includes(sourceUserId)) {
       const no = banned.length + 1
       try {
@@ -80,10 +98,10 @@ async function handleEvent(event) {
       fs.writeFileSync('banned.json', JSON.stringify(banned))
       await client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'someone kicked a member, and i sushed them :3!'}]
+        messages: [{ type: 'text', text: 'someone kicked a member, and i sushed them :3!' }]
       })
-      }
     }
+  }
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
