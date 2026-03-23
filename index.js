@@ -56,11 +56,11 @@ async function handleEvent(event) {
   const userId = event.source.userId
   const text = event.message.text.trim()
 
-  if (text.startsWith('!set ')) {
+  if (text.startsWith('.set ')) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'sorry! that one is a͟d͟m͟i͟n͟ only' }]
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
       })
     }
     const parts = text.slice(5).split(' ')
@@ -70,15 +70,15 @@ async function handleEvent(event) {
     fs.writeFileSync('responses.json', JSON.stringify(responses))
     return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ type: 'text', text: `got it! #${command} saved` }]
+      messages: [{ type: 'text', text: `i'm taking notes, .${command} saved!` }]
     })
   }
 
-  if (text.startsWith('!delete ')) {
+  if (text.startsWith('.delete ')) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'sorry! that one is a͟d͟m͟i͟n͟ only' }]
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
       })
     }
     const command = text.slice(8).trim()
@@ -87,34 +87,34 @@ async function handleEvent(event) {
       fs.writeFileSync('responses.json', JSON.stringify(responses))
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: `poof... #${command} gone` }]
+        messages: [{ type: 'text', text: `poof... .${command} gone` }]
       })
     } else {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: `hmm, #${command} not found! :<` }]
+        messages: [{ type: 'text', text: `hmm, .${command} not found! :<` }]
       })
     }
   }
 
-  if (text === '!comlist') {
+  if (text === '.comlist') {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'sorry! that one is a͟d͟m͟i͟n͟ only' }]
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
       })
     }
     const keys = Object.keys(responses)
     if (keys.length === 0) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'hm, nothing is here yet... (๑•᎑•๑)' }]
+        messages: [{ type: 'text', text: 'hmm, nothing is here yet. (๑•᎑•๑)' }]
       })
     }
-    const list = keys.map(k => `#${k}`).join('\n')
+    const list = keys.map(k => `.${k}`).join('\n')
     return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ type: 'text', text: `i'm taking notes! ۫ ׅ\n\n${list}\n\n𓏵` }]
+      messages: [{ type: 'text', text: `here's my notes!\n\n${list}\n\n𓏵` }]
     })
   }
 
@@ -131,4 +131,4 @@ async function handleEvent(event) {
   return null
 }
 
-app.listen(process.env.PORT || 3000, () => console.log('carmen-bot is running!'))
+app.listen(process.env.PORT || 3000, () => console.log('must say carmen is cute!'))
