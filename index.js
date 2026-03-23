@@ -14,15 +14,6 @@ const client = new line.messagingApi.MessagingApiClient({
 
 const app = express()
 
-let banned = []
-if (fs.existsSync('banned.json')) {
-  banned = JSON.parse(fs.readFileSync('banned.json'))
-}
-
-function isBanned(userId) {
-  return banned.some(b => b.userId === userId)
-}
-
 let responses = {}
 if (fs.existsSync('responses.json')) {
   responses = JSON.parse(fs.readFileSync('responses.json'))
@@ -36,36 +27,8 @@ app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
 
 async function handleEvent(event) {
   if (event.type === 'memberJoined') {
-    console.log('memberJoined event:', JSON.stringify(event))
     const members = event.joined.members
     for (const member of members) {
-      if (isBanned(member.userId)) {
-        await client.kickGroupMember({ groupId: event.source.groupId, userId: member.userId })
-        await client.replyMessage({
-          replyToken: event.replyToken,
-          messages: [{ type: 'text', text: 'someone tried to sneak in... and got removed.' }]
-        })
-        return
-      }
-      if (event.source.type === 'group') {
-        const inviterId = event.joined.inviter?.userId
-        if (inviterId && !ADMIN_IDS.includes(inviterId)) {
-          try {
-            const profile = await client.getGroupMemberProfile({ groupId: event.source.groupId, userId: inviterId })
-            const no = banned.length + 1
-            banned.push({ no, name: profile.displayName, userId: inviterId })
-            fs.writeFileSync('banned.json', JSON.stringify(banned))
-            await client.kickGroupMember({ groupId: event.source.groupId, userId: inviterId })
-            await client.kickGroupMember({ groupId: event.source.groupId, userId: member.userId })
-            return client.replyMessage({
-              replyToken: event.replyToken,
-              messages: [{ type: 'text', text: 'uninvited guests detected... both removed. 𓏵' }]
-            })
-          } catch (err) {
-            console.error('anti-invite error:', err)
-          }
-        }
-      }
       await client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
@@ -84,24 +47,6 @@ async function handleEvent(event) {
       })
     }
     return
-  }
-
-  if (event.type === 'memberLeft') {
-    const sourceUserId = event.source.userId
-    if (!ADMIN_IDS.includes(sourceUserId)) {
-      const no = banned.length + 1
-      try {
-        const profile = await client.getGroupMemberProfile({ groupId: event.source.groupId, userId: sourceUserId })
-        banned.push({ no, name: profile.displayName, userId: sourceUserId })
-      } catch {
-        banned.push({ no, name: 'unknown', userId: sourceUserId })
-      }
-      fs.writeFileSync('banned.json', JSON.stringify(banned))
-      await client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'someone kicked a member, and i sushed them :3!' }]
-      })
-    }
   }
 
   if (event.type !== 'message' || event.message.type !== 'text') {
