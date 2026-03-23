@@ -50,12 +50,12 @@ async function handleEvent(event) {
         const inviterId = event.joined.inviter?.userId
         if (inviterId && !ADMIN_IDS.includes(inviterId)) {
           try {
-            const profile = await client.getGroupMemberProfile(event.source.groupId, inviterId)
+            const profile = await client.getGroupMemberProfile({ groupId: event.source.groupId, userId: inviterId })
             const no = banned.length + 1
             banned.push({ no, name: profile.displayName, userId: inviterId })
             fs.writeFileSync('banned.json', JSON.stringify(banned))
-            await client.kickGroupMember(event.source.groupId, inviterId)
-            await client.kickGroupMember(event.source.groupId, member.userId)
+            await client.kickGroupMember({ groupId: event.source.groupId, userId: inviterId })
+            await client.kickGroupMember({ groupId: event.source.groupId, userId: member.userId })
             return client.replyMessage({
               replyToken: event.replyToken,
               messages: [{ type: 'text', text: 'uninvited guests detected... both removed. 𓏵' }]
@@ -90,7 +90,7 @@ async function handleEvent(event) {
     if (!ADMIN_IDS.includes(sourceUserId)) {
       const no = banned.length + 1
       try {
-        const profile = await client.getGroupMemberProfile(event.source.groupId, sourceUserId)
+        const profile = await client.getGroupMemberProfile({ groupId: event.source.groupId, userId: sourceUserId })
         banned.push({ no, name: profile.displayName, userId: sourceUserId })
       } catch {
         banned.push({ no, name: 'unknown', userId: sourceUserId })
