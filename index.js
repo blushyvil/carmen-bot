@@ -53,13 +53,7 @@ if (event.type === 'memberJoined') {
   const userId = event.source.userId
   const text = event.message.text.trim()
 
-  if (event.type === 'message') {
-    return client.replyMessage(event.replyToken, {
-        type: 'text',
-        text: 'your id: ' + event.source.userId
-    })
-}
-
+  
   if (text.startsWith('!set ')) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage(event.replyToken, {

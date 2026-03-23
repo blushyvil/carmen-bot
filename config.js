@@ -1,3 +1,3 @@
 module.exports = {
-  ADMIN_IDS: ['Uf7f60a8b81ee4ed5f04e02c11df638df']
+  ADMIN_IDS: ['U10a4c4258d49d97ca76186aa00fd968e']
 }
