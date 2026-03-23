@@ -36,6 +36,7 @@ app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
 
 async function handleEvent(event) {
   if (event.type === 'memberJoined') {
+    console.log('memberJoined event:', JSON.stringify(event))
     const members = event.joined.members
     for (const member of members) {
       if (isBanned(member.userId)) {
