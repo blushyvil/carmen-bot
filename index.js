@@ -33,7 +33,7 @@ if (event.type === 'memberJoined') {
         const profile = await client.getGroupMemberProfile(event.source.groupId, member.userId)
         await client.replyMessage(event.replyToken, {
           type: 'text',
-          text: `test: ${profile.displayName}`
+          text: `test: @${profile.displayName}`
         })
       } catch (err) {
         console.error('profile error:', err)
