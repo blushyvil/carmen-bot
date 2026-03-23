@@ -39,7 +39,7 @@ async function handleEvent(event) {
     const members = event.joined.members
     for (const member of members) {
       if (isBanned(member.userId)) {
-        await client.kickGroupMember(event.source.groupId, member.userId)
+        await client.kickGroupMember({ groupId: event.source.groupId, userId: member.userId })
         await client.replyMessage({
           replyToken: event.replyToken,
           messages: [{ type: 'text', text: 'someone tried to sneak in... and got removed.' }]
