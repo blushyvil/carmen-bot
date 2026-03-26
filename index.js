@@ -1,391 +1,144 @@
-// LINE Bot - User Management Module
-// Fitur: Kick, Ban, Admin Management
+require('dotenv').config()
+const express = require('express')
+const line = require('@line/bot-sdk')
+const fs = require('fs')
+const { ADMIN_IDS } = require('./config')
 
-const line = require('@line/bot-sdk');
+const middlewareConfig = {
+  channelSecret: process.env.CHANNEL_SECRET
+}
 
 const client = new line.messagingApi.MessagingApiClient({
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN
-});
+})
 
-// Storage untuk banned users dan admin list (gunakan database di production)
-const bannedUsers = new Set(); // Set userId yang di-ban
-const adminUsers = new Set(); // Set userId yang jadi admin
-const groupSettings = new Map(); // Map groupId -> settings
+const app = express()
 
-// Helper: Check if user is admin
-function isAdmin(userId) {
-  return adminUsers.has(userId);
+let responses = {}
+if (fs.existsSync('responses.json')) {
+  responses = JSON.parse(fs.readFileSync('responses.json'))
 }
 
-// Helper: Check if user is banned
-function isBanned(userId) {
-  return bannedUsers.has(userId);
-}
+// Settings untuk anti-invite
+let antiInviteEnabled = true // Set true untuk aktifkan auto-kick inviter
 
-// Handler untuk pesan masuk
-async function handleUserManagement(event) {
-  const { type, message, source } = event;
-  
-  // Cek apakah di group/room
-  if (source.type !== 'group' && source.type !== 'room') {
-    return null; // User management hanya untuk group
+app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
+  Promise.all(req.body.events.map(handleEvent))
+    .then(result => res.json(result))
+    .catch(err => console.error(err))
+})
+
+async function handleEvent(event) {
+  if (event.type === 'memberJoined') {
+    const members = event.joined.members
+    const groupId = event.source.groupId
+
+    const inviterId = event.source.userId
+
+      await client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{
+          type: 'textV2',
+          text: `{user} welcome to ﹒h͟i͟b͟i͟g͟o͟u͟ 🏄🏻‍♀️\n\nmake yourself at home, enjoy shopping!\n▸ invite temen harus pc admin!\n▸jangan hapus album, notes, atau kick member. or, you'll get 𝗯𝗮𝗻𝗻𝗲𝗱 :3\n\nplease read this ⤸ gohibigou.carrd.co`,
+          substitution: {
+            user: {
+              type: 'mention',
+              mentionee: {
+                type: 'user',
+                userId: member.userId
+              }
+            }
+          }
+        }]
+      })
+    }
+    return
+
+  if (event.type !== 'message' || event.message.type !== 'text') {
+    return null
   }
 
-  if (type !== 'message' || message.type !== 'text') {
+  const userId = event.source.userId
+  const text = event.message.text.trim()
+
+  const isAdmin = ADMIN_IDS.includes(userId) ;
+
+  const isBanned = db.banned.includes(userId) ;
+
+  if (isBanned) {
     return null;
   }
 
-  const text = message.text.trim();
-  const userId = source.userId;
-  const groupId = source.groupId || source.roomId;
-
-  // Command: !kick @mention atau !kick [userId]
-  if (text.startsWith('!kick')) {
-    if (!isAdmin(userId)) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat kick user!'
-        }]
-      });
+  if (text.startsWith('!set ')) {
+    if (text.startsWith('!set')) {
+      if (!isAdmin) return reply(event.replyToken, 'sorry! that one is a̲d̲m̲i̲n̲ only')
     }
-
-    // Parse target user dari mention atau text
-    const targetUserId = extractUserId(text, event);
-    
-    if (!targetUserId) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ Mention user yang mau di-kick!\nContoh: !kick @username'
-        }]
-      });
-    }
-
-    try {
-      // Kick user dari group
-      if (source.type === 'group') {
-        await client.leaveGroup(groupId, targetUserId);
-      } else {
-        await client.leaveRoom(groupId, targetUserId);
-      }
-
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '✅ User berhasil di-kick dari group!'
-        }]
-      });
-    } catch (error) {
-      console.error('Error kicking user:', error);
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Gagal kick user. Pastikan bot punya permission!'
-        }]
-      });
-    }
-  }
-
-  // Command: !ban @mention
-  if (text.startsWith('!ban')) {
-    if (!isAdmin(userId)) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat ban user!'
-        }]
-      });
-    }
-
-    const targetUserId = extractUserId(text, event);
-    
-    if (!targetUserId) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ Mention user yang mau di-ban!\nContoh: !ban @username'
-        }]
-      });
-    }
-
-    // Tambahkan ke banned list
-    bannedUsers.add(targetUserId);
-
-    try {
-      // Kick sekalian dari group
-      if (source.type === 'group') {
-        await client.leaveGroup(groupId, targetUserId);
-      } else {
-        await client.leaveRoom(groupId, targetUserId);
-      }
-
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '🔨 User berhasil di-ban dan di-kick!'
-        }]
-      });
-    } catch (error) {
-      console.error('Error banning user:', error);
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ User di-ban tapi gagal di-kick. Kick manual ya!'
-        }]
-      });
-    }
-  }
-
-  // Command: !unban @mention
-  if (text.startsWith('!unban')) {
-    if (!isAdmin(userId)) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat unban user!'
-        }]
-      });
-    }
-
-    const targetUserId = extractUserId(text, event);
-    
-    if (!targetUserId) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ Mention user yang mau di-unban!'
-        }]
-      });
-    }
-
-    bannedUsers.delete(targetUserId);
-
+    const parts = text.slice(5).split(' ')
+    const command = parts[0]
+    const response = parts.slice(1).join(' ')
+    responses[command] = response
+    fs.writeFileSync('responses.json', JSON.stringify(responses))
     return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{
-        type: 'text',
-        text: '✅ User berhasil di-unban! Silakan invite kembali.'
-      }]
-    });
+      messages: [{ type: 'text', text: `i'm taking notes, .${command} saved!` }]
+    })
   }
 
-  // Command: !addadmin @mention
-  if (text.startsWith('!addadmin')) {
-    if (!isAdmin(userId)) {
+  if (text.startsWith('!delete ')) {
+    if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat tambah admin!'
-        }]
-      });
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
+      })
     }
-
-    const targetUserId = extractUserId(text, event);
-    
-    if (!targetUserId) {
+    const command = text.slice(8).trim()
+    if (responses[command]) {
+      delete responses[command]
+      fs.writeFileSync('responses.json', JSON.stringify(responses))
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ Mention user yang mau dijadiin admin!'
-        }]
-      });
+        messages: [{ type: 'text', text: `poof... .${command} gone` }]
+      })
+    } else {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: `hmm, .${command} not found! :<` }]
+      })
     }
+  }
 
-    adminUsers.add(targetUserId);
-
+  if (text === '!comlist') {
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
+      })
+    }
+    const keys = Object.keys(responses)
+    if (keys.length === 0) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'hmm, nothing is here yet. (๑•᎑•๑)' }]
+      })
+    }
+    const list = keys.map(k => `.${k}`).join('\n')
     return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{
-        type: 'text',
-        text: '👑 User berhasil dijadiin admin!'
-      }]
-    });
+      messages: [{ type: 'text', text: `here's my notes!\n\n${list}\n\n𓏵` }]
+    })
   }
-
-  // Command: !removeadmin @mention
-  if (text.startsWith('!removeadmin')) {
-    if (!isAdmin(userId)) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat remove admin!'
-        }]
-      });
-    }
-
-    const targetUserId = extractUserId(text, event);
-    
-    if (!targetUserId) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '⚠️ Mention user yang mau di-remove dari admin!'
-        }]
-      });
-    }
-
-    adminUsers.delete(targetUserId);
-
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{
-        type: 'text',
-        text: '✅ User berhasil di-remove dari admin!'
-      }]
-    });
-  }
-
-  // Command: !adminlist
-  if (text === '!adminlist') {
-    const adminList = Array.from(adminUsers);
-    const listText = adminList.length > 0 
-      ? `👑 Admin List:\n${adminList.map((id, i) => `${i+1}. ${id}`).join('\n')}`
-      : '⚠️ Belum ada admin yang terdaftar!';
-
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{
-        type: 'text',
-        text: listText
-      }]
-    });
-  }
-
-  // Command: !banlist
-  if (text === '!banlist') {
-    if (!isAdmin(userId)) {
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: '❌ Kamu nggak punya izin buat liat ban list!'
-        }]
-      });
-    }
-
-    const banList = Array.from(bannedUsers);
-    const listText = banList.length > 0 
-      ? `🔨 Banned Users:\n${banList.map((id, i) => `${i+1}. ${id}`).join('\n')}`
-      : '✅ Nggak ada user yang di-ban!';
-
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{
-        type: 'text',
-        text: listText
-      }]
-    });
-  }
-
-  return null;
-}
-
-// Helper function: Extract userId dari mention atau text
-function extractUserId(text, event) {
-  // Cek apakah ada mention di event
-  if (event.message.mention && event.message.mention.mentionees) {
-    const mentioned = event.message.mention.mentionees[0];
-    if (mentioned && mentioned.userId) {
-      return mentioned.userId;
-    }
-  }
-
-  // Fallback: parse dari text (format: !command userId)
-  const parts = text.split(' ');
-  if (parts.length > 1) {
-    return parts[1].trim();
-  }
-
-  return null;
-}
-
-// Event handler untuk cek banned user join
-async function handleMemberJoined(event) {
-  const { joined } = event;
   
-  if (!joined || !joined.members) return null;
-
-  for (const member of joined.members) {
-    if (isBanned(member.userId)) {
-      const groupId = event.source.groupId || event.source.roomId;
-      
-      try {
-        // Auto-kick banned user
-        if (event.source.type === 'group') {
-          await client.leaveGroup(groupId, member.userId);
-        } else {
-          await client.leaveRoom(groupId, member.userId);
-        }
-
-        // Kirim notifikasi
-        await client.pushMessage({
-          to: groupId,
-          messages: [{
-            type: 'text',
-            text: '🔨 Banned user terdeteksi dan otomatis di-kick!'
-          }]
-        });
-      } catch (error) {
-        console.error('Error auto-kicking banned user:', error);
-      }
+  if (text.startsWith('.')) {
+    const command = text.slice(1)
+    if (responses[command]) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: responses[command] }]
+      })
     }
   }
 
-  return null;
+  return null
 }
 
-// Export functions
-module.exports = {
-  handleUserManagement,
-  handleMemberJoined,
-  isAdmin,
-  isBanned,
-  adminUsers, // Export untuk initial setup
-  bannedUsers
-};
-
-// Contoh penggunaan di main webhook handler:
-/*
-app.post('/webhook', line.middleware(config), async (req, res) => {
-  try {
-    const events = req.body.events;
-    
-    await Promise.all(events.map(async (event) => {
-      // Handle user management commands
-      if (event.type === 'message') {
-        await handleUserManagement(event);
-      }
-      
-      // Handle member joined (auto-kick banned users)
-      if (event.type === 'memberJoined') {
-        await handleMemberJoined(event);
-      }
-      
-      // Handler lainnya...
-    }));
-    
-    res.status(200).send('OK');
-  } catch (err) {
-    console.error(err);
-    res.status(500).end();
-  }
-});
-
-// Setup admin pertama kali (run sekali aja)
-adminUsers.add('YOUR_USER_ID_HERE'); // Ganti dengan userId lo
-*/
+app.listen(process.env.PORT || 3000, () => console.log('must say carmen is cute!'))
