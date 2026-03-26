@@ -259,7 +259,7 @@ if (text.startsWith('!unadmin')) {
   }
 
   return null;
-}
+  }
 }
 
 function saveAdmins(admins) {
