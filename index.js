@@ -34,53 +34,32 @@ async function handleEvent(event) {
     const groupId = event.source.groupId
 
     const inviterId = event.source.userId
-
-      console.log('=== MEMBER JOINED ===')
-  console.log('Group ID:', groupId)
-  console.log('Inviter ID:', inviterId)
-  console.log('Admin IDs:', ADMIN_IDS)
-  console.log('Is inviter admin?', inviterId ? ADMIN_IDS.includes(inviterId) : 'no inviter info')
     
-    // Anti-invite: Kick inviter kalau bukan admin
-    if (antiInviteEnabled && inviterId && !ADMIN_IDS.includes(inviterId)) {
-      try {
-        // Kick inviter yang berani invite tanpa izin
-        await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${inviterId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
-          }
-        })
-        
-        // Kick semua member yang baru join juga
-        for (const member of members) {
-          if (member.userId !== inviterId) {
-            await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
-              }
-            })
-          }
-        }
-        
-        // Kirim warning message
-        await client.pushMessage({
-          to: groupId,
-          messages: [{
-            type: 'text',
-            text: `⚠️ unauthorized invite detected!\ninviter has been kicked. please contact admin to invite new members!`
-          }]
-        })
-        
-        return
-      } catch (error) {
-        console.error('Error kicking inviter:', error)
-      }
-    }
-    
-    // Kalau admin yang invite, kirim welcome message seperti biasa
     for (const member of members) {
+      if (ADMIN_IDS.includes(member.userId)) {
+        continue
+      }
+      await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
+  method: 'DELETE',
+  headers: {
+    'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
+  }
+})
+
+await client.pushMessage({
+  to: groupId,
+  messages: [{
+    type: 'text',
+    text: 'unauthorizer invite!\nnew member kicked. please contact admin to invite your fellas!'
+  }]
+})
+
+try {
+
+} catch (error) {
+  console.error('Error saat kick:', error)
+}
+
       await client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
