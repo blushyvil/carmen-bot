@@ -167,7 +167,26 @@ async function handleEvent(event) {
 
     adminText += "\n࣭ ⭑ kindly wait for their responses! ♡"
 
-    // Kode kirim pesan harus di DALAM blok !adminlist
+    try {
+      return await client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{
+          type: 'textV2',
+          text: adminText,
+          substitution: substitution
+        }]
+      });
+    } catch (err) {
+      console.log("failed to mention, non-mention text will be sent...")
+      return client.replymessage({
+        replyToken: event.replyToken,
+        messages: [{
+          text: 'text',
+          text: "here is who could help you:\n\n" + keys.map(id => `Ꮺ ${id}`).join('\n') + "\n\nplease wait a moment.. ♡"
+        }]
+      })
+    }
+
     return client.replyMessage({
       replyToken: event.replyToken,
       messages: [{
@@ -176,7 +195,7 @@ async function handleEvent(event) {
         substitution: substitution
       }]
     });
-  } 
+  }
 
   return null
 }
