@@ -172,7 +172,7 @@ if (text.startsWith('!unadmin')) {
   saveAdmins(filtered);
   return client.replyMessage({
     replyToken: event.replyToken,
-    messages: [{ type: 'text', text: `poof! user ${targetid} is no longer an admin.`}]
+    messages: [{ type: 'text', text: `poof! user ${targetId} is no longer an admin.`}]
   })
 }
 
