@@ -32,7 +32,7 @@ async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     const groupId = event.source.groupId
-    
+
     const inviterId = event.source.userId
 
     for (const member of members) {
@@ -138,6 +138,33 @@ async function handleEvent(event) {
       })
     }
   }
+
+  if (text === '.adminlist') {
+    const keys = ADMIN_IDS;
+
+      if (keys.length === 0) {
+        return client.replyMessage({
+          replyToken: event.replyToken,
+          message: [{ type: 'text', text: 'no admin listed yet!' }]
+        }) ;
+      }
+
+      let adminText = "pc a̲d̲m̲i̲n̲ for inquiries!:\n\n";
+      const substitution = {};
+
+      keys.forEach((id, index) => {
+        const placeholder = `admin${index}`;
+        adminText += `▸ {${placeholder}}\n`;
+
+        subtitution[placeholder] = {
+          type: 'mention',
+          mentionee: {
+            type: 'user',
+            userId: id
+          }
+        }
+      }) 
+    }
 
   return null
 }
