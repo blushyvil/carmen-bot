@@ -29,6 +29,23 @@ app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
 })
 
 async function handleEvent(event) {
+
+  if (event.type === 'message' && event.message.type === 'text') {
+    const uid = event.source.userId;
+    
+    // Ini yang bakal muncul di Log Railway (untuk kamu copy-paste)
+    console.log(`[CHECK ID] User: ${uid} | Message: ${event.message.text}`);
+
+    // Ini yang dibalas Carmen ke chat
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'text',
+        text: `Your User ID: ${uid}`
+      }]
+    });
+  }
+
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     const groupId = event.source.groupId
@@ -138,19 +155,7 @@ async function handleEvent(event) {
       })
     }
   }
-
-  if (text === '.getid') {
-    console.log(`[ID CHECK] User: ${event.source.userId}`); // Muncul di log Railway
-    
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ 
-        type: 'text', 
-        text: `your id is: ${event.source.userId}\n\n(check logs to copy-paste safely! ♡)` 
-      }]
-    });
-  }
-
+  
   if (text === '!adminlist') {
     let admins = [];
     if (fs.existsSync('admins.json')) {
