@@ -202,8 +202,7 @@ if (text.startsWith('!unadmin')) {
         messages: [{ type: 'text', text: 'no admin listed yet! (◞‸ ◟)💧' }] // Suda diperbaiki ke 'messages'
       });
     }
-  }
-
+    
     let adminText = "here's who can h͟e͟l͟p͟ you,\n\n";
     const substitution = {};
 
@@ -259,7 +258,8 @@ if (text.startsWith('!unadmin')) {
     });
   }
 
-  return null
+  return null;
+}
 }
 
 function saveAdmins(admins) {
