@@ -155,7 +155,7 @@ async function handleEvent(event) {
     let adminText = "here's who can h͟e͟l͟p͟ you,\n\n";
     const substitution = {};
 
-    keys.forEach((id, index) => {
+    admins.forEach((id, index) => {
       const placeholder = `admin${index}`;
       adminText += `Ꮺ {${placeholder}}\n`;
 
