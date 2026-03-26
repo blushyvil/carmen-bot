@@ -110,57 +110,25 @@ async function handleEvent(event) {
     if (sourceType !== 'user') return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: 'psst! please use this in private chat!' }] });
     if (!isAdmin) return;
 
- if (text.startsWith('!addadmin ')) {
-  const newId = text.slice(10).trim();
-  
-  if (!newId.startsWith('U')) {
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ type: 'text', text: 'hmm, that doesn\'t look like a valid User ID! :<' }]
-    });
-  }
-
-  let current = loadAdmins();
-  if (!current.includes(newId)) {
-    try {
-      // AMBIL DISPLAY NAME DARI LINE
-      const profile = await client.getUserProfile(newId);
-      const displayName = profile.displayName;
-
-      current.push(newId);
-      saveAdmins(current);
-
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{ 
-          type: 'text', 
-          text: `ⓘ admin "${displayName}" added successfully! ᵔ ᵕ ᵔ` 
-        }]
-      });
-    } catch (error) {
-      // Jika ID tidak ditemukan atau bot tidak bisa akses profilnya
-      console.error(error);
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{ 
-          type: 'text', 
-          text: `added ID: ${newId}, but i couldn't peek their name! :<` 
-        }]
-      });
+   if (text.startsWith('!addadmin')) {
+      const newId = text.slice(10).trim();
+      let current = loadAdmins();
+      if (!current.includes(newId)) {
+        current.push(newId);
+        saveAdmins(current);
+        return client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [{ type: 'text', text: 'ⓘ new admin added!'}],
+          substitution: { user: { type: 'mention', mentionee: {type: 'user', userId: newId}}}
+        });
+      }
     }
-  } else {
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ type: 'text', text: 'psst! they are already an admin!' }]
-    });
-  }
-}
 
     if (text.startsWith('!unadmin')) {
       const targetId = text.slice(9).trim();
       let current = loadAdmins();
       saveAdmins(current.filter(id => id !== targetId));
-      return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `poof! user ${targetId} is out.`}] });
+      return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `ⓘ admin with ${targetId} is kicked.`}] });
     }
   }
 
@@ -178,8 +146,7 @@ async function handleEvent(event) {
       substitution[placeholder] = { type: 'mention', mentionee: { type: 'user', userId: id } };
     });
 
-
-
+    
     return client.replyMessage({
       replyToken: event.replyToken,
       messages: [{ type: 'textV2', text: adminText + "\nkindly wait! ♡", substitution: substitution }]
@@ -190,6 +157,32 @@ async function handleEvent(event) {
   if (text === '.getid') {
     if (sourceType !== 'user') return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: "psst! private chat me to get ID." }] });
     return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `your secret id is: ${userId}` }] });
+  }
+
+  // Command: .payment (Khusus Admin)
+  if (text === '.payment') {
+    if (!isAdmin) return null; // Diem aja kalau bukan admin yang ngetik
+
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ 
+        type: 'text', 
+        text: "💳 PAYMENT DETAILS ﹒h͟i͟b͟i͟g͟o͟u͟\n\n▸ BCA: 1234567890 (A/N Nama Kamu)\n▸ DANA/GOPAY: 08123456789\n\nKindly send the receipt after paying! ♡" 
+      }]
+    });
+  }
+
+  // Command: .linkco (Khusus Admin)
+  if (text === '.linkco') {
+    if (!isAdmin) return null;
+
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ 
+        type: 'text', 
+        text: "🛒 CHECKOUT LINK ﹒h͟i͟b͟i͟g͟o͟u͟\n\n▸ Shopee: shopee.co.id/tokokamu\n▸ Tokopedia: tokopedia.com/tokokamu\n\nDon't forget to claim your vouchers! 🏄🏻‍♀️" 
+      }]
+    });
   }
 
   // Auto-response .command
