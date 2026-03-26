@@ -139,6 +139,18 @@ async function handleEvent(event) {
     }
   }
 
+  if (text === '.getid') {
+    console.log(`[ID CHECK] User: ${event.source.userId}`); // Muncul di log Railway
+    
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ 
+        type: 'text', 
+        text: `your id is: ${event.source.userId}\n\n(check logs to copy-paste safely! ♡)` 
+      }]
+    });
+  }
+
   if (text === '!adminlist') {
     let admins = [];
     if (fs.existsSync('admins.json')) {
