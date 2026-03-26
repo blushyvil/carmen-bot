@@ -46,24 +46,12 @@ async function handleEvent(event) {
   console.log('-> Not admin, trying to kick...')
   
   try {
-    const response = await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
-      }
-    })
-    
-    console.log('Kick response status:', response.status)
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.log('Kick failed:', errorText)
-    } else {
-      console.log('Kick success!')
-    }
+    // GANTI JADI INI - pake SDK
+    await client.kickGroupMember(groupId, member.userId)
+    console.log('Kick success!')
     
   } catch (error) {
-    console.error('Fetch error:', error)
+    console.error('Kick error:', error)
   }
 
 
