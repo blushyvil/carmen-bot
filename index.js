@@ -156,7 +156,7 @@ async function handleEvent(event) {
         const placeholder = `admin${index}`;
         adminText += `▸ {${placeholder}}\n`;
 
-        subtitution[placeholder] = {
+        substitution[placeholder] = {
           type: 'mention',
           mentionee: {
             type: 'user',
