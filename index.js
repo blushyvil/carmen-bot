@@ -145,16 +145,16 @@ async function handleEvent(event) {
     if (keys.length === 0) {
       return client.replyMessage({
         replyToken: event.replyToken,
-        messages: [{ type: 'text', text: 'no admin listed yet!' }] // Suda diperbaiki ke 'messages'
+        messages: [{ type: 'text', text: 'no admin listed yet! (◞‸ ◟)💧' }] // Suda diperbaiki ke 'messages'
       });
     }
 
-    let adminText = "pc a̲d̲m̲i̲n̲ for inquiries!:\n\n";
+    let adminText = "here's who can h͟e͟l͟p͟ you,\n\n";
     const substitution = {};
 
     keys.forEach((id, index) => {
       const placeholder = `admin${index}`;
-      adminText += `▸ {${placeholder}}\n`;
+      adminText += `Ꮺ {${placeholder}}\n`;
 
       substitution[placeholder] = {
         type: 'mention',
@@ -164,6 +164,8 @@ async function handleEvent(event) {
         }
       };
     });
+
+    adminText += "\n࣭ ⭑ kindly wait for their responses! ♡"
 
     // Kode kirim pesan harus di DALAM blok !adminlist
     return client.replyMessage({
