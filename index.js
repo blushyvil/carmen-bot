@@ -32,15 +32,20 @@ async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     const groupId = event.source.groupId
-    
-    // Cek siapa yang invite (inviter)
-    // Note: inviter info ada di event.source kalau ada
+
     const inviterId = event.source.userId
-    
-    // Anti-invite: Kick inviter kalau bukan admin
+
+    if (event.type === 'memberJoined') {
+  console.log('Event:', JSON.stringify(event, null, 2))
+  
+  const inviterId = event.source.userId
+  console.log('Inviter ID:', inviterId)
+  console.log('Is admin?', ADMIN_IDS.includes(inviterId))
+}
+
     if (antiInviteEnabled && inviterId && !ADMIN_IDS.includes(inviterId)) {
       try {
-        // Kick inviter yang berani invite tanpa izin
+    
         await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${inviterId}`, {
           method: 'DELETE',
           headers: {
