@@ -32,9 +32,10 @@ async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     const groupId = event.source.groupId
-
+    
     const inviterId = event.source.userId
 
+    for (const member of members) {
       await client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
@@ -53,6 +54,7 @@ async function handleEvent(event) {
       })
     }
     return
+  }
 
   if (event.type !== 'message' || event.message.type !== 'text') {
     return null
@@ -61,17 +63,13 @@ async function handleEvent(event) {
   const userId = event.source.userId
   const text = event.message.text.trim()
 
-  const isAdmin = ADMIN_IDS.includes(userId) ;
-
-  const isBanned = db.banned.includes(userId) ;
-
-  if (isBanned) {
-    return null;
-  }
-
+  // Command: !set
   if (text.startsWith('!set ')) {
-    if (text.startsWith('!set')) {
-      if (!isAdmin) return reply(event.replyToken, 'sorry! that one is a̲d̲m̲i̲n̲ only')
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
+      })
     }
     const parts = text.slice(5).split(' ')
     const command = parts[0]
@@ -84,6 +82,7 @@ async function handleEvent(event) {
     })
   }
 
+  // Command: !delete
   if (text.startsWith('!delete ')) {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
@@ -107,6 +106,7 @@ async function handleEvent(event) {
     }
   }
 
+  // Command: !comlist
   if (text === '!comlist') {
     if (!ADMIN_IDS.includes(userId)) {
       return client.replyMessage({
@@ -127,7 +127,8 @@ async function handleEvent(event) {
       messages: [{ type: 'text', text: `here's my notes!\n\n${list}\n\n𓏵` }]
     })
   }
-  
+
+  // Command: . (dot)
   if (text.startsWith('.')) {
     const command = text.slice(1)
     if (responses[command]) {
