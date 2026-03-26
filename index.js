@@ -36,15 +36,36 @@ async function handleEvent(event) {
     const inviterId = event.source.userId
     
     for (const member of members) {
-      if (ADMIN_IDS.includes(member.userId)) {
-        continue
-      }
-      await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
-  method: 'DELETE',
-  headers: {
-    'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
+  console.log('Checking member:', member.userId)
+  
+  if (ADMIN_IDS.includes(member.userId)) {
+    console.log('-> This is admin, skip')
+    continue
   }
-})
+  
+  console.log('-> Not admin, trying to kick...')
+  
+  try {
+    const response = await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
+      }
+    })
+    
+    console.log('Kick response status:', response.status)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.log('Kick failed:', errorText)
+    } else {
+      console.log('Kick success!')
+    }
+    
+  } catch (error) {
+    console.error('Fetch error:', error)
+  }
+
 
 await client.pushMessage({
   to: groupId,
