@@ -166,7 +166,17 @@ async function handleEvent(event) {
     });
 
     adminText += "\n࣭ ⭑ kindly wait for their responses! ♡"
+
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'textV2',
+        text: adminText,
+        substitution: substitution
+      }]
+    })
   }
+  
   return null
 }
 
