@@ -142,29 +142,39 @@ async function handleEvent(event) {
   if (text === '!adminlist') {
     const keys = ADMIN_IDS;
 
-      if (keys.length === 0) {
-        return client.replyMessage({
-          replyToken: event.replyToken,
-          message: [{ type: 'text', text: 'no admin listed yet!' }]
-        }) ;
-      }
-
-      let adminText = "pc a̲d̲m̲i̲n̲ for inquiries!:\n\n";
-      const substitution = {};
-
-      keys.forEach((id, index) => {
-        const placeholder = `admin${index}`;
-        adminText += `▸ {${placeholder}}\n`;
-
-        substitution[placeholder] = {
-          type: 'mention',
-          mentionee: {
-            type: 'user',
-            userId: id
-          }
-        }
-      }) 
+    if (keys.length === 0) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'no admin listed yet!' }] // Suda diperbaiki ke 'messages'
+      });
     }
+
+    let adminText = "pc a̲d̲m̲i̲n̲ for inquiries!:\n\n";
+    const substitution = {};
+
+    keys.forEach((id, index) => {
+      const placeholder = `admin${index}`;
+      adminText += `▸ {${placeholder}}\n`;
+
+      substitution[placeholder] = {
+        type: 'mention',
+        mentionee: {
+          type: 'user',
+          userId: id
+        }
+      };
+    });
+
+    // Kode kirim pesan harus di DALAM blok !adminlist
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'textV2',
+        text: adminText,
+        substitution: substitution
+      }]
+    });
+  } 
 
   return null
 }
