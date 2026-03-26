@@ -128,7 +128,7 @@ async function handleEvent(event) {
       const targetId = text.slice(9).trim();
       let current = loadAdmins();
       saveAdmins(current.filter(id => id !== targetId));
-      return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `ⓘ admin with ${targetId} is kicked.`}] });
+      return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `ⓘ admin with ${targetId} is striked.`}] });
     }
   }
 
@@ -146,7 +146,7 @@ async function handleEvent(event) {
       substitution[placeholder] = { type: 'mention', mentionee: { type: 'user', userId: id } };
     });
 
-    
+
     return client.replyMessage({
       replyToken: event.replyToken,
       messages: [{ type: 'textV2', text: adminText + "\nkindly wait! ♡", substitution: substitution }]
@@ -155,8 +155,8 @@ async function handleEvent(event) {
 
   // .getid
   if (text === '.getid') {
-    if (sourceType !== 'user') return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: "psst! private chat me to get ID." }] });
-    return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `your secret id is: ${userId}` }] });
+    if (sourceType !== 'user') return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: "private chat me for the id!" }] });
+    return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `here's your id, boss!\n\n⤷ ${userId} ` }] });
   }
 
   // Command: .payment (Khusus Admin)
