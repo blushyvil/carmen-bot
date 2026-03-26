@@ -181,7 +181,7 @@ async function handleEvent(event) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
-          text: 'text',
+          type: 'text',
           text: "here is who could help you:\n\n" + keys.map(id => `Ꮺ ${id}`).join('\n') + "\n\nplease wait a moment.. ♡"
         }]
       })
