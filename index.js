@@ -178,7 +178,7 @@ async function handleEvent(event) {
       });
     } catch (err) {
       console.log("failed to mention, non-mention text will be sent...")
-      return client.replymessage({
+      return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{
           text: 'text',
