@@ -139,7 +139,7 @@ async function handleEvent(event) {
     }
   }
 
-  if (text === '.adminlist') {
+  if (text === '!adminlist') {
     const keys = ADMIN_IDS;
 
       if (keys.length === 0) {
