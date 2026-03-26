@@ -64,9 +64,12 @@ async function handleEvent(event) {
   const userId = event.source.userId
   const text = event.message.text.trim()
 
+  const currentAdmins = loadAdmins();
+  const isAdmin = ADMIN_IDS.includes(userId) || currentAdmins.includes(userId);
+
   // Command: !set
   if (text.startsWith('!set ')) {
-    if (!ADMIN_IDS.includes(userId)) {
+    if (!isAdmin) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
@@ -85,7 +88,7 @@ async function handleEvent(event) {
 
   // Command: !delete
   if (text.startsWith('!delete ')) {
-    if (!ADMIN_IDS.includes(userId)) {
+    if (!isAdmin) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
@@ -109,7 +112,7 @@ async function handleEvent(event) {
 
   // Command: !comlist
   if (text === '!comlist') {
-    if (!ADMIN_IDS.includes(userId)) {
+    if (!isAdmin) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
@@ -129,15 +132,54 @@ async function handleEvent(event) {
     })
   }
 
+  if (text.startsWith('!addadmin') || text.startsWith('!unadmin')) {
+    if (sourceType !== 'user')
+      return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ type: 'text', text: 'psst! for privacy, please use this command in private chat!'}]
+  });
+}
+
+if (!isAdmin) return;
+
+if (text.startsWith('!addadmin')) {
+  const newId = text.slice(10).trim();
+  if (newId.startsWith('U')) {
+    let current = loadAdmins();
+    if (!current.includes(newId)) {
+      current.push(newId);
+      saveAdmins(current);
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'ⓘ admin {user} added successfully!'}],
+        substitution: { user: { type: 'mention', mentionee: {type: 'user', userId: newId}}}
+      })
+    }
+  }
+}
+
+if (text.startsWith('!unadmin')) {
+  const targetId = text.slice(9).trim();
+  let current = loadAdmins();
+  const filtered = current.filter(id => id !== targetId);
+  saveAdmins(filtered);
+  return client.replyMessage({
+    replyToken: event.replyToken,
+    messages: [{ type: 'text', text: 'poof! user ${targetid} is no longer an admin.'}]
+  })
+}
+
   // Command: . (dot)
   if (text.startsWith('.')) {
     const command = text.slice(1)
     if (responses[command]) {
+      if (!isAdmin) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: responses[command] }]
       })
     }
+  }
   }
 
   if (text === '!adminlist') {
@@ -209,6 +251,15 @@ async function handleEvent(event) {
   }
 
   return null
+}
+
+function saveAdmins(admins) {
+  fs.writeFileSync('admins.json', JSON.stringify(admins, null, 2));
+}
+
+function loadAdmins() {
+  if (!fs.existsSync('admins.json')) return [];
+  return JSON.parse(fs.readFileSync('admins.json', 'utf8'));
 }
 
 app.listen(process.env.PORT || 3000, () => console.log('must say carmen is cute!'))
