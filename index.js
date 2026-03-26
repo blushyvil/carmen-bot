@@ -45,7 +45,7 @@ async function handleEvent(event) {
     const members = event.joined.members
 
 
-    
+
     for (const member of members) {
       await client.replyMessage({
         replyToken: event.replyToken,
@@ -110,19 +110,51 @@ async function handleEvent(event) {
     if (sourceType !== 'user') return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: 'psst! please use this in private chat!' }] });
     if (!isAdmin) return;
 
-    if (text.startsWith('!addadmin')) {
-      const newId = text.slice(10).trim();
-      let current = loadAdmins();
-      if (!current.includes(newId)) {
-        current.push(newId);
-        saveAdmins(current);
-        return client.replyMessage({
-          replyToken: event.replyToken,
-          messages: [{ type: 'text', text: 'ⓘ admin {user} added!'}],
-          substitution: { user: { type: 'mention', mentionee: {type: 'user', userId: newId}}}
-        });
-      }
+ if (text.startsWith('!addadmin ')) {
+  const newId = text.slice(10).trim();
+  
+  if (!newId.startsWith('U')) {
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ type: 'text', text: 'hmm, that doesn\'t look like a valid User ID! :<' }]
+    });
+  }
+
+  let current = loadAdmins();
+  if (!current.includes(newId)) {
+    try {
+      // AMBIL DISPLAY NAME DARI LINE
+      const profile = await client.getUserProfile(newId);
+      const displayName = profile.displayName;
+
+      current.push(newId);
+      saveAdmins(current);
+
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ 
+          type: 'text', 
+          text: `ⓘ admin "${displayName}" added successfully! ᵔ ᵕ ᵔ` 
+        }]
+      });
+    } catch (error) {
+      // Jika ID tidak ditemukan atau bot tidak bisa akses profilnya
+      console.error(error);
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ 
+          type: 'text', 
+          text: `added ID: ${newId}, but i couldn't peek their name! :<` 
+        }]
+      });
     }
+  } else {
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ type: 'text', text: 'psst! they are already an admin!' }]
+    });
+  }
+}
 
     if (text.startsWith('!unadmin')) {
       const targetId = text.slice(9).trim();
