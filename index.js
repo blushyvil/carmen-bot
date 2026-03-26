@@ -259,9 +259,8 @@ if (text.startsWith('!unadmin')) {
   }
 
   return null;
-  }
 }
-
+  
 function saveAdmins(admins) {
   fs.writeFileSync('admins.json', JSON.stringify(admins, null, 2));
 }
@@ -269,6 +268,7 @@ function saveAdmins(admins) {
 function loadAdmins() {
   if (!fs.existsSync('admins.json')) return [];
   return JSON.parse(fs.readFileSync('admins.json', 'utf8'));
+}
 }
 
 app.listen(process.env.PORT || 3000, () => console.log('must say carmen is cute!'))
