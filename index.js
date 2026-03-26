@@ -29,7 +29,7 @@ app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
 })
 
 async function handleEvent(event) {
-  
+
   if (event.type === 'memberJoined') {
     const members = event.joined.members
     const groupId = event.source.groupId
@@ -179,6 +179,33 @@ async function handleEvent(event) {
         substitution: substitution
       }]
     })
+  }
+
+  // Command: .getid (Hanya bisa di Private Chat)
+  if (text === '.getid') {
+    const sourceType = event.source.type; // Cek 'user', 'group', atau 'room'
+
+    if (sourceType !== 'user') {
+      // Jika diketik di grup, Carmen kasih tahu buat PC aja
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ 
+          type: 'text', 
+          text: "psst! for security, please chat me p̲r̲i̲v̲a̲t̲e̲l̲y̲ to get your ID. ♡" 
+        }]
+      });
+    }
+
+    // Jika di Private Chat (user), tampilkan ID-nya
+    console.log(`[PRIVATE ID CHECK] Admin Candidate: ${event.source.userId}`);
+    
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ 
+        type: 'text', 
+        text: `your secret id is: ${event.source.userId}\n\nplease send this to the owner! 𓏵` 
+      }]
+    });
   }
 
   return null
