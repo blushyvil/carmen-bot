@@ -140,9 +140,12 @@ async function handleEvent(event) {
   }
 
   if (text === '!adminlist') {
-    const keys = ADMIN_IDS;
+    let admins = [];
+    if (fs.existsSync('admins.json')) {
+      admins = JSON.parse(fs.readFileSync('admins.json'));
+    }
 
-    if (keys.length === 0) {
+    if (admins.length === 0) {
       return client.replyMessage({
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: 'no admin listed yet! (◞‸ ◟)💧' }] // Suda diperbaiki ke 'messages'
@@ -176,7 +179,7 @@ async function handleEvent(event) {
       }]
     })
   }
-  
+
   return null
 }
 
