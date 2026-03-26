@@ -166,37 +166,7 @@ async function handleEvent(event) {
     });
 
     adminText += "\n࣭ ⭑ kindly wait for their responses! ♡"
-
-    try {
-      return await client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'textV2',
-          text: adminText,
-          substitution: substitution
-        }]
-      });
-    } catch (err) {
-      console.log("failed to mention, non-mention text will be sent...")
-      return client.replyMessage({
-        replyToken: event.replyToken,
-        messages: [{
-          type: 'text',
-          text: "here is who could help you:\n\n" + keys.map(id => `Ꮺ ${id}`).join('\n') + "\n\nplease wait a moment.. ♡"
-        }]
-      })
-    }
-
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{
-        type: 'textV2',
-        text: adminText,
-        substitution: substitution
-      }]
-    });
   }
-
   return null
 }
 
