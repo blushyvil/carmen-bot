@@ -159,29 +159,22 @@ async function handleEvent(event) {
     return client.replyMessage({ replyToken: event.replyToken, messages: [{ type: 'text', text: `here's your id, boss!\n\n⤷ ${userId} ` }] });
   }
 
-  // Command: .payment (Khusus Admin)
-  if (text === '.payment') {
-    if (!isAdmin) return null; // Diem aja kalau bukan admin yang ngetik
-
-    return client.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ 
-        type: 'text', 
-        text: "💳 PAYMENT DETAILS ﹒h͟i͟b͟i͟g͟o͟u͟\n\n▸ BCA: 1234567890 (A/N Nama Kamu)\n▸ DANA/GOPAY: 08123456789\n\nKindly send the receipt after paying! ♡" 
-      }]
-    });
-  }
-
-  // Command: .linkco (Khusus Admin)
-  if (text === '.linkco') {
+// Command: .pay (Bisa nyelip di mana aja)
+  if (text.toLowerCase().includes('.pay')) {
     if (!isAdmin) return null;
 
     return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ 
-        type: 'text', 
-        text: "🛒 CHECKOUT LINK ﹒h͟i͟b͟i͟g͟o͟u͟\n\n▸ Shopee: shopee.co.id/tokokamu\n▸ Tokopedia: tokopedia.com/tokokamu\n\nDon't forget to claim your vouchers! 🏄🏻‍♀️" 
-      }]
+      messages: [
+        { 
+          type: 'text', 
+          text: "🛒 CHECKOUT LINK ﹒h͟i͟b͟i͟g͟o͟u͟\n\n▸ Shopee: shopee.co.id/tokokamu\n▸ Tokopedia: tokopedia.com/tokokamu" 
+        },
+        { 
+          type: 'text', 
+          text: "💳 PAYMENT DETAILS\n\n▸ BCA: 1234567890 (A/N Kamu)\n▸ DANA: 08123456789\n\nKindly send receipt! ♡" 
+        }
+      ]
     });
   }
 
