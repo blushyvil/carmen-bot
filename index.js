@@ -63,6 +63,7 @@ async function handleEvent(event) {
 
   const userId = event.source.userId
   const text = event.message.text.trim()
+  const sourceType = event.source.type
 
   const currentAdmins = loadAdmins();
   const isAdmin = ADMIN_IDS.includes(userId) || currentAdmins.includes(userId);
@@ -133,14 +134,20 @@ async function handleEvent(event) {
   }
 
   if (text.startsWith('!addadmin') || text.startsWith('!unadmin')) {
-    if (sourceType !== 'user')
+    if (sourceType !== 'user') {
       return client.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ type: 'text', text: 'psst! for privacy, please use this command in private chat!'}]
-  });
-}
+      messages: [{ 
+        type: 'text', 
+        text: 'psst! for privacy, please use this command in private chat!'
+      }]
+    });
+  }
+  
 
-if (!isAdmin) return;
+if (!isAdmin) {
+  return;
+}
 
 if (text.startsWith('!addadmin')) {
   const newId = text.slice(10).trim();
@@ -153,7 +160,7 @@ if (text.startsWith('!addadmin')) {
         replyToken: event.replyToken,
         messages: [{ type: 'text', text: 'ⓘ admin {user} added successfully!'}],
         substitution: { user: { type: 'mention', mentionee: {type: 'user', userId: newId}}}
-      })
+      });
     }
   }
 }
@@ -165,9 +172,10 @@ if (text.startsWith('!unadmin')) {
   saveAdmins(filtered);
   return client.replyMessage({
     replyToken: event.replyToken,
-    messages: [{ type: 'text', text: 'poof! user ${targetid} is no longer an admin.'}]
+    messages: [{ type: 'text', text: `poof! user ${targetid} is no longer an admin.`}]
   })
 }
+
 
   // Command: . (dot)
   if (text.startsWith('.')) {
@@ -194,6 +202,7 @@ if (text.startsWith('!unadmin')) {
         messages: [{ type: 'text', text: 'no admin listed yet! (◞‸ ◟)💧' }] // Suda diperbaiki ke 'messages'
       });
     }
+  }
 
     let adminText = "here's who can h͟e͟l͟p͟ you,\n\n";
     const substitution = {};
