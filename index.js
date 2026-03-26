@@ -19,6 +19,9 @@ if (fs.existsSync('responses.json')) {
   responses = JSON.parse(fs.readFileSync('responses.json'))
 }
 
+// Settings untuk anti-invite
+let antiInviteEnabled = true // Set true untuk aktifkan auto-kick inviter
+
 app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
     .then(result => res.json(result))
@@ -28,6 +31,51 @@ app.post('/webhook', line.middleware(middlewareConfig), (req, res) => {
 async function handleEvent(event) {
   if (event.type === 'memberJoined') {
     const members = event.joined.members
+    const groupId = event.source.groupId
+    
+    // Cek siapa yang invite (inviter)
+    // Note: inviter info ada di event.source kalau ada
+    const inviterId = event.source.userId
+    
+    // Anti-invite: Kick inviter kalau bukan admin
+    if (antiInviteEnabled && inviterId && !ADMIN_IDS.includes(inviterId)) {
+      try {
+        // Kick inviter yang berani invite tanpa izin
+        await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${inviterId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
+          }
+        })
+        
+        // Kick semua member yang baru join juga
+        for (const member of members) {
+          if (member.userId !== inviterId) {
+            await fetch(`https://api.line.me/v2/bot/group/${groupId}/member/${member.userId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`
+              }
+            })
+          }
+        }
+        
+        // Kirim warning message
+        await client.pushMessage({
+          to: groupId,
+          messages: [{
+            type: 'text',
+            text: `⚠️ unauthorized invite detected!\ninviter has been kicked. please contact admin to invite new members!`
+          }]
+        })
+        
+        return
+      } catch (error) {
+        console.error('Error kicking inviter:', error)
+      }
+    }
+    
+    // Kalau admin yang invite, kirim welcome message seperti biasa
     for (const member of members) {
       await client.replyMessage({
         replyToken: event.replyToken,
@@ -55,6 +103,24 @@ async function handleEvent(event) {
 
   const userId = event.source.userId
   const text = event.message.text.trim()
+
+  // Command untuk toggle anti-invite (admin only)
+  if (text === '!antiinvite') {
+    if (!ADMIN_IDS.includes(userId)) {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: 'sorry! that one is a̲d̲m̲i̲n̲ only' }]
+      })
+    }
+    antiInviteEnabled = !antiInviteEnabled
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{ 
+        type: 'text', 
+        text: `anti-invite is now ${antiInviteEnabled ? 'ON ✅' : 'OFF ❌'}` 
+      }]
+    })
+  }
 
   if (text.startsWith('!set ')) {
     if (!ADMIN_IDS.includes(userId)) {
