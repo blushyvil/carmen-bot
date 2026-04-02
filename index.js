@@ -214,6 +214,17 @@ async function handleEvent(event) {
     });
   }
 
+  // --- COMMAND: .help (LIST MENU) ---
+  if (text.toLowerCase() === '.help' || text.toLowerCase() === '.menu') {
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'text',
+        text: `﹒h͟i͟b͟i͟g͟o͟u͟ 𝘀𝘆𝘀𝘁𝗲𝗺 𝗺𝗲𝗻𝘂 🏄🏻‍♀️\n\n▸ .jpy [angka] : jpy to idr calc\n▸ .getid : check your user id\n▸ .pay : payment info (admin only)\n\nfor other info, check our notes via .comlist! ♡`
+      }]
+    });
+  }
+
   return null;
 } // <-- TUTUP HANDLE EVENT DI SINI
 
