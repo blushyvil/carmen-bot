@@ -186,6 +186,26 @@ async function handleEvent(event) {
     }
   }
 
+  // --- KONVERSI JPY (CARMEN CALCULATOR) ---
+  const jpyMatch = text.toLowerCase().match(/\.jpy\s?(\d+)/) || text.toLowerCase().match(/(\d+)y/);
+  
+  if (jpyMatch) {
+    const yenAmount = parseInt(jpyMatch[1]);
+    const rateJpy = 112; // Rate aman biar gak nombok
+    const feeGo = 17000; // 10k warehouse + 7k jatah Alice
+    
+    const totalIdr = (yenAmount * rateJpy) + feeGo;
+    const formattedIdr = new Intl.NumberFormat('id-ID').format(totalIdr);
+
+    return client.replyMessage({
+      replyToken: event.replyToken,
+      messages: [{
+        type: 'text',
+        text: `🛒 HIBIGOU CALC\n\n${yenAmount} JPY ⮕ Rp${formattedIdr}\n\n▸ rate: ${rateJpy}\n▸ incl. fee warehouse & admin\n\ngas slot? pc admin! ♡`
+      }]
+    });
+  }
+
   return null;
 } // <-- TUTUP HANDLE EVENT DI SINI
 
