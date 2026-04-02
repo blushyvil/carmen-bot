@@ -186,13 +186,21 @@ async function handleEvent(event) {
     }
   }
 
-  // --- KONVERSI JPY (CARMEN CALCULATOR) ---
+// --- KONVERSI JPY (PRIVATE CHAT ONLY) ---
   const jpyMatch = text.toLowerCase().match(/\.jpy\s?(\d+)/) || text.toLowerCase().match(/(\d+)y/);
   
   if (jpyMatch) {
+    // PROTEKSI PC: Kalau bukan dari user (alias dari group/room), suruh PC
+    if (sourceType !== 'user') {
+      return client.replyMessage({
+        replyToken: event.replyToken,
+        messages: [{ type: 'text', text: "psst! please pc me to use the calculator! ♡" }]
+      });
+    }
+
     const yenAmount = parseInt(jpyMatch[1]);
-    const rateJpy = 112; // Rate aman biar gak nombok
-    const feeGo = 17000; // 10k warehouse + 7k jatah Alice
+    const rateJpy = 112; 
+    const feeGo = 17000; 
     
     const totalIdr = (yenAmount * rateJpy) + feeGo;
     const formattedIdr = new Intl.NumberFormat('id-ID').format(totalIdr);
